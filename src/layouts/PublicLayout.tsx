@@ -9,8 +9,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
   const navItems = [
     { name: 'Home', path: '/' },
-    { name: 'Ordinances', path: '/ordinances' },
-    { name: 'Resolutions', path: '/resolutions' },
+    { name: 'Legislation', path: '/ordinances' },
+    { name: 'News & Events', path: '/news' },
     { name: 'Sessions & Live', path: '/sessions' },
     { name: 'SB Members', path: '/members' },
     { name: 'Contact', path: '/contact' },
@@ -26,8 +26,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <span className="flex items-center"><Mail className="w-3 h-3 mr-1" /> SangguniangBayan@lgubatuan.gov.ph</span>
           </div>
           <div className="flex items-center space-x-3">
-            <a href="#" className="hover:text-lgu-gold-500"><Facebook className="w-4 h-4" /></a>
-            <a href="#" className="hover:text-lgu-gold-500"><Youtube className="w-4 h-4" /></a>
+            <a href="https://web.facebook.com/profile.php?id=100090571482008" target="_blank" rel="noopener noreferrer" className="hover:text-lgu-gold-500"><Facebook className="w-4 h-4" /></a>
+            <a href="https://www.youtube.com/@13thSangguniangBayanBatuanBoh" target="_blank" rel="noopener noreferrer" className="hover:text-lgu-gold-500"><Youtube className="w-4 h-4" /></a>
             <Link to="/login" className="text-xs bg-lgu-blue-800 px-3 py-1 rounded hover:bg-lgu-blue-700 ml-2">Admin Login</Link>
           </div>
         </div>
@@ -105,9 +105,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <p className="text-slate-300 text-sm leading-relaxed mb-4">
               The legislative body of the Municipality of Batuan, committed to transparency, accountability, and public service.
             </p>
-            <div className="flex space-x-2 text-slate-300 text-sm">
-              <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
-              <span>2nd Floor, Municipal Hall, Batuan, Philippines</span>
+            <div className="flex space-x-4 mt-6">
+              <a href="https://web.facebook.com/profile.php?id=100090571482008" target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-lgu-gold-500 hover:text-lgu-blue-900 transition-all">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="https://www.youtube.com/@13thSangguniangBayanBatuanBoh" target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-lgu-gold-500 hover:text-lgu-blue-900 transition-all">
+                <Youtube className="w-5 h-5" />
+              </a>
             </div>
           </div>
           <div>

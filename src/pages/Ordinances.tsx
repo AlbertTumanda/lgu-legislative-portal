@@ -83,6 +83,8 @@ export default function Ordinances() {
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         item.status === 'Approved' ? 'bg-green-100 text-green-800' : 
                         item.status === 'Vetoed' ? 'bg-red-100 text-red-800' : 
+                        item.status === 'Archieved' ? 'bg-slate-100 text-slate-800' :
+                        item.status === 'Layed on the table' ? 'bg-orange-100 text-orange-800' :
                         'bg-yellow-100 text-yellow-800'
                       }`}>
                         {item.status}
@@ -92,9 +94,23 @@ export default function Ordinances() {
                       {item.date_approved || 'Pending'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button className="text-lgu-blue-900 hover:text-lgu-gold-600 flex items-center justify-end w-full">
-                        <Download className="w-4 h-4 mr-1" /> PDF
-                      </button>
+                      {item.file_url ? (
+                        <a 
+                          href={item.file_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-lgu-blue-900 hover:text-lgu-gold-600 flex items-center justify-end w-full"
+                        >
+                          <Download className="w-4 h-4 mr-1" /> PDF
+                        </a>
+                      ) : (
+                        <button 
+                          disabled 
+                          className="text-slate-300 flex items-center justify-end w-full cursor-not-allowed"
+                        >
+                          <Download className="w-4 h-4 mr-1" /> N/A
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

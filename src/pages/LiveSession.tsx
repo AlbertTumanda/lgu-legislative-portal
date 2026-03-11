@@ -3,6 +3,7 @@ import { Video, Calendar, MessageSquare, Send, ThumbsUp, Share2, Download, User 
 import { format } from 'date-fns';
 
 export default function LiveSession() {
+  const [sessions, setSessions] = useState<any[]>([]);
   const [activeSession, setActiveSession] = useState<any>(null);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<any[]>([]);
@@ -16,11 +17,28 @@ export default function LiveSession() {
   });
 
   useEffect(() => {
-    // Fetch latest session (simulated)
+    // Fetch sessions
     fetch('/api/sessions')
       .then(res => res.json())
       .then(data => {
-        if (data.length > 0) setActiveSession(data[0]);
+        setSessions(data);
+        if (data.length > 0) {
+          // Priority: 1. Live, 2. Scheduled (closest to now), 3. Most recent Ended
+          const live = data.find((s: any) => s.status === 'Live');
+          if (live) {
+            setActiveSession(live);
+          } else {
+            const scheduled = data
+              .filter((s: any) => s.status === 'Scheduled')
+              .sort((a: any, b: any) => new Date(a.session_date).getTime() - new Date(b.session_date).getTime());
+            
+            if (scheduled.length > 0) {
+              setActiveSession(scheduled[0]);
+            } else {
+              setActiveSession(data[0]); // Fallback to most recent
+            }
+          }
+        }
       });
   }, []);
 
@@ -219,6 +237,70 @@ export default function LiveSession() {
                 </form>
               )}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Session Schedule Section */}
+      <div className="mt-16">
+        <h2 className="text-3xl font-serif font-bold text-lgu-blue-900 mb-8 flex items-center">
+          <Calendar className="w-8 h-8 mr-3 text-lgu-gold-500" />
+          Legislative Session Schedule
+        </h2>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="px-6 py-4 text-sm font-bold text-slate-700 uppercase tracking-wider">Session Title</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-700 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-700 uppercase tracking-wider">Time</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-700 uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-700 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {sessions.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-slate-500">No sessions scheduled.</td>
+                  </tr>
+                ) : (
+                  sessions.map((session) => (
+                    <tr 
+                      key={session.id} 
+                      className={`hover:bg-slate-50 transition-colors cursor-pointer ${activeSession?.id === session.id ? 'bg-lgu-blue-50/50' : ''}`}
+                      onClick={() => setActiveSession(session)}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-slate-900">{session.title}</div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 text-sm">
+                        {format(new Date(session.session_date), 'MMMM d, yyyy')}
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 text-sm">
+                        {format(new Date(session.session_date), 'h:mm a')}
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 text-sm">{session.type}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          session.status === 'Live' ? 'bg-red-100 text-red-800 animate-pulse' :
+                          session.status === 'Scheduled' ? 'bg-blue-100 text-blue-800' : 
+                          'bg-slate-100 text-slate-800'
+                        }`}>
+                          {session.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="p-4 bg-slate-50 border-t border-slate-200 text-center">
+            <p className="text-xs text-slate-500 italic">
+              * Schedule is subject to change. Please check back regularly for updates.
+            </p>
           </div>
         </div>
       </div>

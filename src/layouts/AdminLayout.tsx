@@ -3,9 +3,10 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileText, 
-  Video, 
   MessageSquare, 
+  Newspaper,
   Users, 
+  History,
   Settings, 
   LogOut,
   Menu,
@@ -32,9 +33,11 @@ export default function AdminLayout() {
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Legislative Management', path: '/admin/legislations', icon: FileText },
-    { name: 'Session Management', path: '/admin/sessions', icon: Video },
+    { name: 'SB Members', path: '/admin/members', icon: Users },
+    { name: 'News & Events', path: '/admin/news', icon: Newspaper },
     { name: 'Public Comments', path: '/admin/comments', icon: MessageSquare },
     { name: 'User Management', path: '/admin/users', icon: Users },
+    { name: 'Activity Logs', path: '/admin/logs', icon: History },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 

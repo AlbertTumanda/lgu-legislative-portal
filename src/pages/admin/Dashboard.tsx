@@ -5,17 +5,23 @@ import {
   MessageSquare, 
   Video, 
   TrendingUp, 
-  Activity 
+  Activity,
+  History
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function AdminDashboard() {
+  const { token } = useAuth();
   const [stats, setStats] = useState({
     ordinances: 0,
     sessions: 0,
     comments: 0,
     views: 0
   });
+  const [recentLogs, setRecentLogs] = useState<any[]>([]);
 
   // Mock Data for Charts
   const engagementData = [
@@ -37,7 +43,22 @@ export default function AdminDashboard() {
         views: 12500
       });
     }, 500);
-  }, []);
+
+    fetchRecentLogs();
+  }, [token]);
+
+  const fetchRecentLogs = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/logs', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setRecentLogs(data.slice(0, 5));
+    } catch (err) {
+      console.error('Failed to fetch recent logs:', err);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -133,23 +154,32 @@ export default function AdminDashboard() {
 
         {/* Recent Activity Feed */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 className="font-bold text-slate-900 mb-6">Recent Activity</h3>
-          <div className="space-y-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-start space-x-3">
-                <div className="w-2 h-2 mt-2 rounded-full bg-lgu-blue-900 flex-shrink-0"></div>
-                <div>
-                  <p className="text-sm text-slate-800">
-                    <span className="font-bold">Juan Dela Cruz</span> submitted a comment on <span className="italic">Ordinance No. 2024-001</span>
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">2 hours ago</p>
-                </div>
-              </div>
-            ))}
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-bold text-slate-900">Recent Activity</h3>
+            <History className="w-5 h-5 text-slate-400" />
           </div>
-          <button className="w-full mt-6 py-2 text-sm text-lgu-blue-900 font-medium border border-slate-200 rounded-lg hover:bg-slate-50">
+          <div className="space-y-6">
+            {recentLogs.length === 0 ? (
+              <p className="text-sm text-slate-500 text-center py-4">No recent activity.</p>
+            ) : (
+              recentLogs.map((log) => (
+                <div key={log.id} className="flex items-start space-x-3">
+                  <div className="w-2 h-2 mt-2 rounded-full bg-lgu-blue-900 flex-shrink-0"></div>
+                  <div>
+                    <p className="text-sm text-slate-800">
+                      <span className="font-bold">{log.user_name}</span> {log.action.toLowerCase()} {log.target_type.toLowerCase()} <span className="italic">{log.details}</span>
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <Link to="/admin/logs" className="block w-full mt-6 py-2 text-center text-sm text-lgu-blue-900 font-medium border border-slate-200 rounded-lg hover:bg-slate-50">
             View All Logs
-          </button>
+          </Link>
         </div>
       </div>
     </div>

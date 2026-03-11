@@ -14,9 +14,19 @@ import Ordinances from './pages/Ordinances';
 import LiveSession from './pages/LiveSession';
 import Login from './pages/Login';
 import Members from './pages/Members';
+import Contact from './pages/Contact';
+import News from './pages/News';
+import NewsDetails from './pages/NewsDetails';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
+import LegislativeManagement from './pages/admin/LegislativeManagement';
+import Comments from './pages/admin/Comments';
+import Users from './pages/admin/Users';
+import Settings from './pages/admin/Settings';
+import ActivityLogs from './pages/admin/ActivityLogs';
+import NewsManagement from './pages/admin/NewsManagement';
+import MemberManagement from './pages/admin/MemberManagement';
 
 export default function App() {
   return (
@@ -26,10 +36,12 @@ export default function App() {
           {/* Public Routes */}
           <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
           <Route path="/ordinances" element={<PublicLayout><Ordinances /></PublicLayout>} />
-          <Route path="/resolutions" element={<PublicLayout><Ordinances /></PublicLayout>} /> {/* Reusing component with filter */}
+          <Route path="/legislation" element={<PublicLayout><Ordinances /></PublicLayout>} />
           <Route path="/sessions" element={<PublicLayout><LiveSession /></PublicLayout>} />
+          <Route path="/news" element={<PublicLayout><News /></PublicLayout>} />
+          <Route path="/news/:id" element={<PublicLayout><NewsDetails /></PublicLayout>} />
           <Route path="/members" element={<PublicLayout><Members /></PublicLayout>} />
-          <Route path="/contact" element={<PublicLayout><div className="p-12 text-center">Contact Page (Coming Soon)</div></PublicLayout>} />
+          <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
           
           {/* Auth */}
           <Route path="/login" element={<Login />} />
@@ -37,11 +49,13 @@ export default function App() {
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
-            <Route path="legislations" element={<div className="p-8">Legislative Management (Coming Soon)</div>} />
-            <Route path="sessions" element={<div className="p-8">Session Management (Coming Soon)</div>} />
-            <Route path="comments" element={<div className="p-8">Comment Moderation (Coming Soon)</div>} />
-            <Route path="users" element={<div className="p-8">User Management (Coming Soon)</div>} />
-            <Route path="settings" element={<div className="p-8">Settings (Coming Soon)</div>} />
+            <Route path="legislations" element={<LegislativeManagement />} />
+            <Route path="members" element={<MemberManagement />} />
+            <Route path="comments" element={<Comments />} />
+            <Route path="news" element={<NewsManagement />} />
+            <Route path="users" element={<Users />} />
+            <Route path="logs" element={<ActivityLogs />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </Router>
