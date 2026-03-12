@@ -247,6 +247,7 @@ export default function NewsManagement() {
                   >
                     <option value="News">News</option>
                     <option value="Event">Event</option>
+                    <option value="Announcement">Announcement</option>
                   </select>
                 </div>
                 <div>

@@ -41,7 +41,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="flex items-center">
               <img src="/sblogo.jpg" alt="SB Logo" className="w-12 h-12 rounded-full mr-3 object-cover" />
               <div>
-                <h1 className="text-lg font-serif font-bold text-lgu-blue-900 leading-tight">Sangguniang Bayan</h1>
+                <h1 className="text-lg font-serif font-bold text-lgu-blue-900 leading-tight">SB-Batuan-Portal</h1>
                 <p className="text-xs text-slate-500 uppercase tracking-wider">Municipality of Batuan</p>
               </div>
             </div>

@@ -9,9 +9,9 @@ export default function Home() {
   const [news, setNews] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/legislations?type=Ordinance')
+    fetch('/api/legislations')
       .then(res => res.json())
-      .then(data => setOrdinances(data.slice(0, 3))); // Get top 3
+      .then(data => setOrdinances(data.slice(0, 3))); // Get top 3 (Ordinances or Resolutions)
     
     fetch('/api/sessions')
       .then(res => res.json())
@@ -141,9 +141,20 @@ export default function Home() {
               <p className="text-slate-600 text-sm mb-4 line-clamp-3 flex-grow">{ord.description}</p>
               <div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
                 <span className="text-xs text-slate-500">Authored by {ord.author}</span>
-                <Link to={`/ordinances/${ord.id}`} className="text-sm font-medium text-lgu-blue-900 hover:underline">
-                  Read Full Text
-                </Link>
+                {ord.file_url ? (
+                  <a 
+                    href={ord.file_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-lgu-blue-900 hover:underline"
+                  >
+                    Read Full Text
+                  </a>
+                ) : (
+                  <Link to={`/ordinances/${ord.id}`} className="text-sm font-medium text-lgu-blue-900 hover:underline">
+                    Read Full Text
+                  </Link>
+                )}
               </div>
             </div>
           ))}

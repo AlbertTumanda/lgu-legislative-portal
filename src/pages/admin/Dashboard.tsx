@@ -16,9 +16,10 @@ import { formatDistanceToNow } from 'date-fns';
 export default function AdminDashboard() {
   const { token } = useAuth();
   const [stats, setStats] = useState({
-    ordinances: 0,
+    legislations: 0,
     sessions: 0,
-    comments: 0,
+    pendingComments: 0,
+    totalComments: 0,
     views: 0
   });
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
@@ -34,18 +35,22 @@ export default function AdminDashboard() {
   ];
 
   useEffect(() => {
-    // Simulate fetching stats
-    setTimeout(() => {
-      setStats({
-        ordinances: 124,
-        sessions: 45,
-        comments: 89,
-        views: 12500
-      });
-    }, 500);
-
+    fetchStats();
     fetchRecentLogs();
   }, [token]);
+
+  const fetchStats = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/admin/stats', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setStats(data);
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
+  };
 
   const fetchRecentLogs = async () => {
     if (!token) return;
@@ -72,8 +77,8 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Total Ordinances</p>
-              <p className="text-3xl font-bold text-lgu-blue-900 mt-1">{stats.ordinances}</p>
+              <p className="text-sm font-medium text-slate-500">Total Legislation</p>
+              <p className="text-3xl font-bold text-lgu-blue-900 mt-1">{stats.legislations}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-full text-lgu-blue-900">
               <FileText className="w-6 h-6" />
@@ -81,7 +86,7 @@ export default function AdminDashboard() {
           </div>
           <div className="mt-4 flex items-center text-sm text-green-600">
             <TrendingUp className="w-4 h-4 mr-1" />
-            <span>+4 this month</span>
+            <span>Active records</span>
           </div>
         </div>
 
@@ -96,7 +101,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm text-slate-500">
-            <span>Next session in 3 days</span>
+            <span>Recorded sessions</span>
           </div>
         </div>
 
@@ -104,7 +109,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">Pending Comments</p>
-              <p className="text-3xl font-bold text-lgu-blue-900 mt-1">12</p>
+              <p className="text-3xl font-bold text-lgu-blue-900 mt-1">{stats.pendingComments}</p>
             </div>
             <div className="p-3 bg-yellow-100 rounded-full text-yellow-600">
               <MessageSquare className="w-6 h-6" />
@@ -120,7 +125,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">Total Page Views</p>
-              <p className="text-3xl font-bold text-lgu-blue-900 mt-1">12.5k</p>
+              <p className="text-3xl font-bold text-lgu-blue-900 mt-1">{stats.views}</p>
             </div>
             <div className="p-3 bg-green-100 rounded-full text-green-600">
               <Users className="w-6 h-6" />

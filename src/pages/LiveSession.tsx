@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Video, Calendar, MessageSquare, Send, ThumbsUp, Share2, Download, User } from 'lucide-react';
+import { Video, Calendar, MessageSquare, Send, ThumbsUp, Share2, Download, User, Shield } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function LiveSession() {
@@ -42,19 +42,45 @@ export default function LiveSession() {
       });
   }, []);
 
+  useEffect(() => {
+    if (activeSession?.id) {
+      fetch(`/api/comments?session_id=${activeSession.id}`)
+        .then(res => res.json())
+        .then(data => setComments(data))
+        .catch(err => console.error('Failed to fetch comments:', err));
+    }
+  }, [activeSession?.id]);
+
+  const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    if (url.includes('youtube.com/embed/')) return url;
+    
+    // Handle standard youtube links
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+
+    if (match && match[2].length === 11) {
+      return `https://www.youtube.com/embed/${match[2]}`;
+    }
+    
+    return url;
+  };
+
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!comment || !userForm.name) return;
+    if (!comment || !userForm.name || !userForm.email || !userForm.barangay) {
+      alert('Please fill in all fields.');
+      return;
+    }
 
     setIsSubmitting(true);
     
-    // Simulate API call
     try {
-      await fetch('/api/comments', {
+      const res = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          legislation_id: null, // General session comment
+          legislation_id: null,
           session_id: activeSession?.id,
           user_name: userForm.name,
           barangay: userForm.barangay,
@@ -63,21 +89,25 @@ export default function LiveSession() {
         })
       });
       
-      // Optimistic update
-      setComments([{
-        id: Date.now(),
-        user_name: userForm.name,
-        content: comment,
-        created_at: new Date().toISOString(),
-        status: 'Pending' // In real app, this would be pending moderation
-      }, ...comments]);
-      
-      setComment('');
-      alert('Comment submitted for moderation!');
+      if (res.ok) {
+        setComment('');
+        alert('Comment submitted for moderation!');
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const safeFormat = (dateStr: string, formatStr: string) => {
+    try {
+      if (!dateStr) return 'N/A';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'N/A';
+      return format(date, formatStr);
+    } catch (e) {
+      return 'N/A';
     }
   };
 
@@ -93,7 +123,7 @@ export default function LiveSession() {
           <div className="bg-black rounded-xl overflow-hidden shadow-2xl aspect-video relative">
             {activeSession.video_url ? (
               <iframe 
-                src={activeSession.video_url} 
+                src={getEmbedUrl(activeSession.video_url)} 
                 className="w-full h-full" 
                 title="Session Stream"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -103,7 +133,7 @@ export default function LiveSession() {
               <div className="absolute inset-0 flex items-center justify-center text-white flex-col">
                 <Video className="w-16 h-16 mb-4 opacity-50" />
                 <p className="text-lg font-medium">Stream Offline</p>
-                <p className="text-sm text-slate-400">Next session starts: {activeSession.session_date}</p>
+                <p className="text-sm text-slate-400">Next session starts: {safeFormat(activeSession.session_date, 'MMMM d, yyyy')}</p>
               </div>
             )}
             
@@ -122,7 +152,7 @@ export default function LiveSession() {
               <div>
                 <h1 className="text-2xl font-serif font-bold text-lgu-blue-900">{activeSession.title}</h1>
                 <div className="flex items-center text-slate-500 text-sm mt-2 space-x-4">
-                  <span className="flex items-center"><Calendar className="w-4 h-4 mr-1" /> {format(new Date(activeSession.session_date), 'MMMM d, yyyy • h:mm a')}</span>
+                  <span className="flex items-center"><Calendar className="w-4 h-4 mr-1" /> {safeFormat(activeSession.session_date, 'MMMM d, yyyy • h:mm a')}</span>
                   <span className="flex items-center"><Video className="w-4 h-4 mr-1" /> {activeSession.streaming_platform || 'YouTube'}</span>
                 </div>
               </div>
@@ -134,15 +164,8 @@ export default function LiveSession() {
             
             <div className="mt-6">
               <h3 className="font-bold text-slate-900 mb-2">Session Agenda</h3>
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-700 space-y-2">
-                <p>1. Call to Order</p>
-                <p>2. Invocation & National Anthem</p>
-                <p>3. Roll Call</p>
-                <p>4. Reading and Approval of Previous Minutes</p>
-                <p>5. First Reading of Proposed Ordinances</p>
-                <p>6. Committee Reports</p>
-                <p>7. Unfinished Business</p>
-                <p>8. Adjournment</p>
+              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-700 whitespace-pre-wrap">
+                {activeSession.description || 'No agenda provided for this session.'}
               </div>
               <div className="mt-4 flex space-x-3">
                 <button className="flex items-center text-sm text-lgu-blue-900 font-medium hover:underline">
@@ -175,20 +198,30 @@ export default function LiveSession() {
                 </div>
               ) : (
                 comments.map((c) => (
-                  <div key={c.id} className="flex space-x-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-500">
-                        <User className="w-4 h-4" />
+                  <div key={c.id} className="space-y-2">
+                    <div className="flex space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-500">
+                          <User className="w-4 h-4" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-baseline space-x-2">
+                          <span className="text-sm font-bold text-slate-900">{c.user_name}</span>
+                          <span className="text-xs text-slate-400">{safeFormat(c.created_at, 'MMM d, h:mm a')}</span>
+                        </div>
+                        <p className="text-sm text-slate-700 mt-1">{c.content}</p>
                       </div>
                     </div>
-                    <div>
-                      <div className="flex items-baseline space-x-2">
-                        <span className="text-sm font-bold text-slate-900">{c.user_name}</span>
-                        <span className="text-xs text-slate-400">Just now</span>
+                    {c.admin_response && (
+                      <div className="ml-11 bg-lgu-blue-50 p-3 rounded-lg border border-lgu-blue-100">
+                        <div className="flex items-center mb-1">
+                          <Shield className="w-3 h-3 text-lgu-blue-900 mr-1" />
+                          <span className="text-[10px] font-bold text-lgu-blue-900 uppercase">LGU Response</span>
+                        </div>
+                        <p className="text-xs text-slate-700">{c.admin_response}</p>
                       </div>
-                      <p className="text-sm text-slate-700 mt-1">{c.content}</p>
-                      {c.status === 'Pending' && <span className="text-xs text-yellow-600 italic">Pending Moderation</span>}
-                    </div>
+                    )}
                   </div>
                 ))
               )}
@@ -196,36 +229,43 @@ export default function LiveSession() {
 
             {/* Input Area */}
             <div className="p-4 border-t border-slate-100 bg-slate-50 rounded-b-xl">
-              {!userForm.name ? (
-                <div className="space-y-3">
-                  <p className="text-xs font-bold text-slate-600 uppercase">Join the discussion</p>
+              <form onSubmit={handleCommentSubmit} className="space-y-3">
+                <div className="grid grid-cols-1 gap-2">
                   <input 
                     type="text" 
                     placeholder="Full Name" 
                     className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-lgu-blue-900"
+                    value={userForm.name}
                     onChange={e => setUserForm({...userForm, name: e.target.value})}
+                    required
                   />
-                  <input 
-                    type="email" 
-                    placeholder="Email Address" 
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-lgu-blue-900"
-                    onChange={e => setUserForm({...userForm, email: e.target.value})}
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Barangay" 
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-lgu-blue-900"
-                    onChange={e => setUserForm({...userForm, barangay: e.target.value})}
-                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input 
+                      type="email" 
+                      placeholder="Email" 
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-lgu-blue-900"
+                      value={userForm.email}
+                      onChange={e => setUserForm({...userForm, email: e.target.value})}
+                      required
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="Barangay" 
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-lgu-blue-900"
+                      value={userForm.barangay}
+                      onChange={e => setUserForm({...userForm, barangay: e.target.value})}
+                      required
+                    />
+                  </div>
                 </div>
-              ) : (
-                <form onSubmit={handleCommentSubmit} className="relative">
+                <div className="relative">
                   <textarea
                     className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-lgu-blue-900 resize-none text-sm"
                     rows={3}
                     placeholder="Type your comment..."
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
+                    required
                   ></textarea>
                   <button 
                     type="submit" 
@@ -234,8 +274,8 @@ export default function LiveSession() {
                   >
                     <Send className="w-5 h-5" />
                   </button>
-                </form>
-              )}
+                </div>
+              </form>
             </div>
           </div>
         </div>

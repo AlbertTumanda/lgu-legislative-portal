@@ -101,7 +101,7 @@ export default function Ordinances() {
                           rel="noopener noreferrer"
                           className="text-lgu-blue-900 hover:text-lgu-gold-600 flex items-center justify-end w-full"
                         >
-                          <Download className="w-4 h-4 mr-1" /> PDF
+                          <Download className="w-4 h-4 mr-1" /> Read Full Text
                         </a>
                       ) : (
                         <button 
