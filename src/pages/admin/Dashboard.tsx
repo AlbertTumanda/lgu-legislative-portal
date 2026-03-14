@@ -20,6 +20,7 @@ export default function AdminDashboard() {
     sessions: 0,
     pendingComments: 0,
     totalComments: 0,
+    unreadMessages: 0,
     views: 0
   });
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
@@ -73,7 +74,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
           <div className="flex items-center justify-between">
             <div>
@@ -118,6 +119,22 @@ export default function AdminDashboard() {
           <div className="mt-4 flex items-center text-sm text-red-500 font-medium">
             <Activity className="w-4 h-4 mr-1" />
             <span>Action required</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Unread Messages</p>
+              <p className="text-3xl font-bold text-lgu-blue-900 mt-1">{stats.unreadMessages}</p>
+            </div>
+            <div className="p-3 bg-red-100 rounded-full text-red-600">
+              <MessageSquare className="w-6 h-6" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-sm text-red-500 font-medium">
+            <Activity className="w-4 h-4 mr-1" />
+            <Link to="/admin/messages" className="hover:underline">View messages</Link>
           </div>
         </div>
 

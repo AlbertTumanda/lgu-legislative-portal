@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Search, Facebook, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import clsx from 'clsx';
+import AIChatbot from '../components/AIChatbot';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,13 +37,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       {/* Header / Nav */}
       <header className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-24">
             {/* Logo Area */}
             <div className="flex items-center">
-              <img src="/sblogo.jpg" alt="SB Logo" className="w-12 h-12 rounded-full mr-3 object-cover" />
+              <img src="/sblogo.jpg" alt="SB Logo" className="w-16 h-16 rounded-full mr-4 shadow-sm object-cover" />
               <div>
-                <h1 className="text-lg font-serif font-bold text-lgu-blue-900 leading-tight">SB-Batuan-Portal</h1>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Municipality of Batuan</p>
+                <h1 className="text-2xl font-serif font-bold text-lgu-blue-900 leading-tight">Sangguniang Bayan</h1>
+                <p className="text-sm text-slate-500 uppercase tracking-widest">Municipality of Batuan</p>
               </div>
             </div>
 
@@ -96,6 +97,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <main className="flex-grow bg-slate-50">
         {children}
       </main>
+
+      <AIChatbot />
 
       {/* Footer */}
       <footer className="bg-lgu-blue-900 text-white pt-12 pb-6">

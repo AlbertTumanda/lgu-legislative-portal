@@ -110,6 +110,7 @@ async function startServer() {
     const sessions = db.prepare("SELECT COUNT(*) as count FROM sessions").get() as any;
     const comments = db.prepare("SELECT COUNT(*) as count FROM comments WHERE status = 'Pending'").get() as any;
     const totalComments = db.prepare("SELECT COUNT(*) as count FROM comments").get() as any;
+    const unreadMessages = db.prepare("SELECT COUNT(*) as count FROM contact_messages WHERE status = 'Unread'").get() as any;
     
     // For views, we can mock it or if we have a table, use it. 
     // Since there's no views table, I'll use a semi-random but consistent number or just 0 for now.
@@ -119,6 +120,7 @@ async function startServer() {
       sessions: sessions.count,
       pendingComments: comments.count,
       totalComments: totalComments.count,
+      unreadMessages: unreadMessages.count,
       views: 1250 // Mocking views as requested "Actual Data" usually refers to DB records.
     });
   });
@@ -343,6 +345,34 @@ async function startServer() {
   app.get("/api/logs", authenticate, (req, res) => {
     const rows = db.prepare("SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 500").all();
     res.json(rows);
+  });
+
+  // Contact Messages
+  app.post("/api/contact", (req, res) => {
+    const { full_name, email, subject, message } = req.body;
+    const id = crypto.randomUUID();
+    const stmt = db.prepare(`
+      INSERT INTO contact_messages (id, full_name, email, subject, message)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    stmt.run(id, full_name, email, subject, message);
+    res.json({ success: true, id });
+  });
+
+  app.get("/api/admin/contact", authenticate, (req, res) => {
+    const rows = db.prepare("SELECT * FROM contact_messages ORDER BY created_at DESC").all();
+    res.json(rows);
+  });
+
+  app.patch("/api/admin/contact/:id", authenticate, (req: any, res) => {
+    const { status } = req.body;
+    db.prepare("UPDATE contact_messages SET status = ? WHERE id = ?").run(status, req.params.id);
+    res.json({ success: true });
+  });
+
+  app.delete("/api/admin/contact/:id", authenticate, (req: any, res) => {
+    db.prepare("DELETE FROM contact_messages WHERE id = ?").run(req.params.id);
+    res.json({ success: true });
   });
 
   // News & Events

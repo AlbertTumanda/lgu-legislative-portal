@@ -76,6 +76,19 @@ export function initDB() {
     )
   `);
 
+  // Contact Messages Table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id TEXT PRIMARY KEY,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      message TEXT NOT NULL,
+      status TEXT DEFAULT 'Unread',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Activity Logs Table
   db.exec(`
     CREATE TABLE IF NOT EXISTS activity_logs (

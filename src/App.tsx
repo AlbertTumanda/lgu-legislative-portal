@@ -27,6 +27,7 @@ import Settings from './pages/admin/Settings';
 import ActivityLogs from './pages/admin/ActivityLogs';
 import NewsManagement from './pages/admin/NewsManagement';
 import MemberManagement from './pages/admin/MemberManagement';
+import MessageManagement from './pages/admin/MessageManagement';
 
 export default function App() {
   return (
@@ -51,6 +52,7 @@ export default function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="legislations" element={<LegislativeManagement />} />
             <Route path="members" element={<MemberManagement />} />
+            <Route path="messages" element={<MessageManagement />} />
             <Route path="comments" element={<Comments />} />
             <Route path="news" element={<NewsManagement />} />
             <Route path="users" element={<Users />} />

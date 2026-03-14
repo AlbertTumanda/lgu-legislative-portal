@@ -30,6 +30,21 @@ export default function Home() {
       .then(data => setNews(data));
   }, []);
 
+  const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    if (url.includes('youtube.com/embed/')) return url;
+    
+    // Handle standard youtube links
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+
+    if (match && match[2].length === 11) {
+      return `https://www.youtube.com/embed/${match[2]}`;
+    }
+    
+    return url;
+  };
+
   return (
     <div className="space-y-12 pb-12">
       {/* Hero Section */}
@@ -273,7 +288,7 @@ export default function Home() {
                  {sessions[0]?.video_url ? (
                    <iframe 
                      className="w-full h-full"
-                     src={sessions[0].video_url} 
+                     src={getEmbedUrl(sessions[0].video_url)} 
                      title={sessions[0].title} 
                      frameBorder="0" 
                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
