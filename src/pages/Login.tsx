@@ -62,7 +62,7 @@ export default function Login() {
                   type="email"
                   required
                   className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lgu-blue-900 focus:border-transparent"
-                  placeholder="admin@lgu.gov.ph"
+                  placeholder="Albert@lgu.gov.ph"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />

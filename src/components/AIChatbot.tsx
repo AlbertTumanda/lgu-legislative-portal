@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
-import { getAIChatResponse } from '../services/aiService';
 import { motion, AnimatePresence } from 'motion/react';
 import clsx from 'clsx';
 
@@ -16,40 +15,7 @@ export default function AIChatbot() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [contextData, setContextData] = useState({
-    legislations: [],
-    news: [],
-    sessions: [],
-    members: []
-  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Fetch all context data
-    const fetchData = async () => {
-      try {
-        const [legRes, newsRes, sessRes, memRes] = await Promise.all([
-          fetch('/api/legislations'),
-          fetch('/api/news'),
-          fetch('/api/sessions'),
-          fetch('/api/members')
-        ]);
-
-        const [legislations, news, sessions, members] = await Promise.all([
-          legRes.json(),
-          newsRes.json(),
-          sessRes.json(),
-          memRes.json()
-        ]);
-
-        setContextData({ legislations, news, sessions, members });
-      } catch (err) {
-        console.error('Failed to fetch context data for AI:', err);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -66,22 +32,20 @@ export default function AIChatbot() {
     setIsLoading(true);
 
     try {
-      const context = `
-        LEGISLATIONS (Ordinances & Resolutions):
-        ${contextData.legislations.map((l: any) => `- ${l.legislation_type} ${l.number}: ${l.title} (${l.status})`).join('\n')}
-        
-        NEWS & EVENTS:
-        ${contextData.news.map((n: any) => `- ${n.title} (${n.category}, ${n.event_date || 'N/A'})`).join('\n')}
-        
-        SESSION SCHEDULES:
-        ${contextData.sessions.map((s: any) => `- ${s.title} on ${s.session_date} (${s.status})`).join('\n')}
-        
-        SB MEMBERS:
-        ${contextData.members.map((m: any) => `- ${m.full_name} (${m.position}) - Committees: ${m.committees_chairmanship}`).join('\n')}
-      `;
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: userMessage }),
+      });
 
-      const aiResponse = await getAIChatResponse(userMessage, context);
-      setMessages(prev => [...prev, { role: 'ai', content: aiResponse || "I'm sorry, I couldn't process that request." }]);
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+      setMessages(prev => [...prev, { role: 'ai', content: data.reply || "I'm sorry, I couldn't process that request." }]);
     } catch (error) {
       console.error('AI Error:', error);
       setMessages(prev => [...prev, { role: 'ai', content: "I'm having trouble connecting to my brain right now. Please try again later or contact our office." }]);

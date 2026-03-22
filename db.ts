@@ -151,6 +151,17 @@ export function initDB() {
     console.log('Admin user seeded.');
   }
 
+  // Seed Albert Admin User if not exists
+  const albertExists = db.prepare('SELECT * FROM users WHERE email = ?').get('Albert@lgu.gov.ph');
+  if (!albertExists) {
+    const hashedPassword = bcrypt.hashSync('12345', 10);
+    db.prepare(`
+      INSERT INTO users (id, full_name, email, password_hash, role)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(crypto.randomUUID(), 'Albert Admin', 'Albert@lgu.gov.ph', hashedPassword, 'admin');
+    console.log('Albert admin user seeded.');
+  }
+
   // Seed Sample Data
   const legislationCount = db.prepare('SELECT count(*) as count FROM legislations').get() as {count: number};
   if (legislationCount.count === 0) {
