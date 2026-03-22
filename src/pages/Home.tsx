@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, FileText, Calendar, ArrowRight, Video, Users, Facebook, Youtube, Newspaper } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, Video, Users, Facebook, Youtube, Newspaper } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -35,7 +35,7 @@ export default function Home() {
     if (url.includes('youtube.com/embed/')) return url;
     
     // Handle standard youtube links
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
 
     if (match && match[2].length === 11) {

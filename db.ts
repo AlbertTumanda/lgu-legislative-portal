@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3';
-import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 
@@ -133,10 +132,27 @@ export function initDB() {
     )
   `);
 
+  // Settings Table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    )
+  `);
+
+  // Seed Settings if not exists
+  const logoExists = db.prepare('SELECT * FROM settings WHERE key = ?').get('logo_url');
+  if (!logoExists) {
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('logo_url', '/sblogo.jpg');
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('icon_url', '/sblogo.jpg');
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('site_title', 'Sangguniang Bayan - Batuan, Bohol');
+    console.log('Default settings seeded.');
+  }
+
   // Migration: Add author column if it doesn't exist
   try {
     db.exec("ALTER TABLE news_events ADD COLUMN author TEXT");
-  } catch (e) {
+  } catch {
     // Column might already exist
   }
 

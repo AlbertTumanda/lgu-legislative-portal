@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Newspaper, Plus, Edit2, Trash2, Search, Calendar, Image as ImageIcon, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Edit2, Trash2, Search, Image as ImageIcon, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
 
@@ -22,11 +22,7 @@ export default function NewsManagement() {
     is_published: 1
   });
 
-  useEffect(() => {
-    fetchNews();
-  }, []);
-
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
@@ -40,7 +36,11 @@ export default function NewsManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchNews();
+  }, [fetchNews]);
 
   const handleOpenModal = (item: any = null) => {
     if (item) {

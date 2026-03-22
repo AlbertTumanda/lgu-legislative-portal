@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Users, 
   FileText, 
@@ -35,12 +35,7 @@ export default function AdminDashboard() {
     { name: 'Jun', comments: 23, views: 380 },
   ];
 
-  useEffect(() => {
-    fetchStats();
-    fetchRecentLogs();
-  }, [token]);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch('/api/admin/stats', {
@@ -51,9 +46,9 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to fetch stats:', err);
     }
-  };
+  }, [token]);
 
-  const fetchRecentLogs = async () => {
+  const fetchRecentLogs = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch('/api/logs', {
@@ -64,7 +59,15 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to fetch recent logs:', err);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchStats();
+      fetchRecentLogs();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchStats, fetchRecentLogs]);
 
   return (
     <div className="space-y-8">

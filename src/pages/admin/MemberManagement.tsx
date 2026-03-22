@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Users, Plus, Edit2, Trash2, Search, User, FileUp, X } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Edit2, Trash2, Search, User, FileUp, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function MemberManagement() {
@@ -21,11 +21,7 @@ export default function MemberManagement() {
     rank: 0
   });
 
-  useEffect(() => {
-    fetchMembers();
-  }, []);
-
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/members');
@@ -36,7 +32,11 @@ export default function MemberManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchMembers();
+  }, [fetchMembers]);
 
   const handleOpenModal = (item: any = null) => {
     if (item) {

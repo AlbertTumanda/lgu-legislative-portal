@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, ArrowLeft, Newspaper, Share2, Facebook, Twitter } from 'lucide-react';
 import { format } from 'date-fns';
@@ -9,7 +9,7 @@ export default function NewsDetails() {
   const [item, setItem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchNewsDetail = useCallback(() => {
     fetch(`/api/news/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Not found');
@@ -19,6 +19,10 @@ export default function NewsDetails() {
       .catch(() => navigate('/'))
       .finally(() => setLoading(false));
   }, [id, navigate]);
+
+  useEffect(() => {
+    fetchNewsDetail();
+  }, [fetchNewsDetail]);
 
   if (loading) {
     return (

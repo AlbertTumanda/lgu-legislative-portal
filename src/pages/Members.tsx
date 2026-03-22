@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User, Shield, Award } from 'lucide-react';
 
 export default function Members() {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchMembers = useCallback(() => {
     fetch('/api/members')
       .then(res => res.json())
       .then(data => {
@@ -17,6 +17,10 @@ export default function Members() {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    fetchMembers();
+  }, [fetchMembers]);
 
   const viceMayor = members.find(m => m.position === 'Vice Mayor');
   const councilMembers = members.filter(m => m.position !== 'Vice Mayor');

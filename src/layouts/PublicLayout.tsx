@@ -1,12 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Search, Facebook, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Menu, X, Facebook, Youtube, Mail, Phone } from 'lucide-react';
 import { useState } from 'react';
 import clsx from 'clsx';
 import AIChatbot from '../components/AIChatbot';
+import { useSettings } from '../context/SettingsContext';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { settings } = useSettings();
 
   const navItems = [
     { name: 'Home', path: '/' },
@@ -40,7 +42,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <div className="flex justify-between items-center h-24">
             {/* Logo Area */}
             <div className="flex items-center">
-              <img src="/sblogo.jpg" alt="SB Logo" className="w-16 h-16 rounded-full mr-4 shadow-sm object-cover" />
+              <img src={settings.logo_url} alt="SB Logo" className="w-16 h-16 rounded-full mr-4 shadow-sm object-cover" />
               <div>
                 <h1 className="text-2xl font-serif font-bold text-lgu-blue-900 leading-tight">Sangguniang Bayan</h1>
                 <p className="text-sm text-slate-500 uppercase tracking-widest">Municipality of Batuan</p>

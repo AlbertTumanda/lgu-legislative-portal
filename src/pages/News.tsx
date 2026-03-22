@@ -9,7 +9,7 @@ export default function News() {
   const [category, setCategory] = useState('All');
 
   useEffect(() => {
-    let url = '/api/news';
+    const url = '/api/news';
     const params = new URLSearchParams();
     if (category !== 'All') params.append('category', category);
     

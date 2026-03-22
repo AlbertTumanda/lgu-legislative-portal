@@ -5,6 +5,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { SettingsProvider } from './context/SettingsContext';
 import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
 
@@ -32,35 +33,37 @@ import MessageManagement from './pages/admin/MessageManagement';
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
-          <Route path="/ordinances" element={<PublicLayout><Ordinances /></PublicLayout>} />
-          <Route path="/legislation" element={<PublicLayout><Ordinances /></PublicLayout>} />
-          <Route path="/sessions" element={<PublicLayout><LiveSession /></PublicLayout>} />
-          <Route path="/news" element={<PublicLayout><News /></PublicLayout>} />
-          <Route path="/news/:id" element={<PublicLayout><NewsDetails /></PublicLayout>} />
-          <Route path="/members" element={<PublicLayout><Members /></PublicLayout>} />
-          <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
-          
-          {/* Auth */}
-          <Route path="/login" element={<Login />} />
+      <SettingsProvider>
+        <Router>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+            <Route path="/ordinances" element={<PublicLayout><Ordinances /></PublicLayout>} />
+            <Route path="/legislation" element={<PublicLayout><Ordinances /></PublicLayout>} />
+            <Route path="/sessions" element={<PublicLayout><LiveSession /></PublicLayout>} />
+            <Route path="/news" element={<PublicLayout><News /></PublicLayout>} />
+            <Route path="/news/:id" element={<PublicLayout><NewsDetails /></PublicLayout>} />
+            <Route path="/members" element={<PublicLayout><Members /></PublicLayout>} />
+            <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+            
+            {/* Auth */}
+            <Route path="/login" element={<Login />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="legislations" element={<LegislativeManagement />} />
-            <Route path="members" element={<MemberManagement />} />
-            <Route path="messages" element={<MessageManagement />} />
-            <Route path="comments" element={<Comments />} />
-            <Route path="news" element={<NewsManagement />} />
-            <Route path="users" element={<Users />} />
-            <Route path="logs" element={<ActivityLogs />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-        </Routes>
-      </Router>
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="legislations" element={<LegislativeManagement />} />
+              <Route path="members" element={<MemberManagement />} />
+              <Route path="messages" element={<MessageManagement />} />
+              <Route path="comments" element={<Comments />} />
+              <Route path="news" element={<NewsManagement />} />
+              <Route path="users" element={<Users />} />
+              <Route path="logs" element={<ActivityLogs />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Routes>
+        </Router>
+      </SettingsProvider>
     </AuthProvider>
   );
 }

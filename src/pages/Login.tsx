@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 
@@ -8,6 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const { settings } = useSettings();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +41,7 @@ export default function Login() {
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="bg-lgu-blue-900 p-8 text-center">
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
-             <img src="/sblogo.jpg" alt="Logo" className="w-full h-full object-cover" />
+             <img src={settings.logo_url} alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-2xl font-serif font-bold text-white">Admin Portal</h2>
           <p className="text-lgu-gold-500 text-sm mt-1">Sangguniang Bayan of Batuan</p>

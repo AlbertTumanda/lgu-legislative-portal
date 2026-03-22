@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Users as UsersIcon, Plus, Edit2, Trash2, Shield, Mail, Key } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Edit2, Trash2, Shield, Mail, Key } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
 
@@ -16,11 +16,7 @@ export default function Users() {
     role: 'admin'
   });
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
@@ -34,7 +30,11 @@ export default function Users() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleOpenModal = (user: any = null) => {
     if (user) {

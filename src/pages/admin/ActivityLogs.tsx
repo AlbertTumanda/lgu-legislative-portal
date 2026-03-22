@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { History, User, Tag, Clock, Info, Search, Filter } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { User, Tag, Clock, Info, Search, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
 
@@ -10,11 +10,7 @@ export default function ActivityLogs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState('All');
 
-  useEffect(() => {
-    fetchLogs();
-  }, [token]);
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
@@ -28,7 +24,11 @@ export default function ActivityLogs() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch = 

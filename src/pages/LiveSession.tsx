@@ -56,7 +56,7 @@ export default function LiveSession() {
     if (url.includes('youtube.com/embed/')) return url;
     
     // Handle standard youtube links
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
 
     if (match && match[2].length === 11) {
@@ -106,7 +106,7 @@ export default function LiveSession() {
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return 'N/A';
       return format(date, formatStr);
-    } catch (e) {
+    } catch {
       return 'N/A';
     }
   };

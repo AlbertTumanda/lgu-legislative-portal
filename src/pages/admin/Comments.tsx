@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MessageSquare, CheckCircle, XCircle, Trash2, Search, Filter, MessageCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
@@ -12,11 +12,7 @@ export default function Comments() {
   const [respondingTo, setRespondingTo] = useState<any>(null);
   const [adminResponse, setAdminResponse] = useState('');
 
-  useEffect(() => {
-    fetchComments();
-  }, []);
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
@@ -30,7 +26,11 @@ export default function Comments() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
 
   const handleUpdateStatus = async (id: string, status: string, response: string = '') => {
     try {

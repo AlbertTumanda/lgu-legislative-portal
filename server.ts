@@ -15,13 +15,6 @@ const __dirname = path.dirname(__filename); //albert
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-key-change-in-prod";
 
-//albert
-const distPath = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "dist"
-);
-//albert
-
 // Ensure uploads directory exists
 const uploadsDir = path.resolve("public/uploads");
 if (!fs.existsSync(uploadsDir)) {
@@ -80,7 +73,7 @@ async function startServer() {
       if (!user) return res.status(401).json({ error: "Unauthorized" });
       req.user = user;
       next();
-    } catch (err) {
+    } catch {
       return res.status(401).json({ error: "Unauthorized" });
     }
   };
@@ -490,6 +483,31 @@ async function startServer() {
     if (member) {
       logActivity(req.user.id, req.user.full_name, 'Deleted', 'SB Member', req.params.id, member.full_name);
     }
+    res.json({ success: true });
+  });
+
+  // Settings
+  app.get("/api/settings", (req, res) => {
+    const rows = db.prepare("SELECT * FROM settings").all() as any[];
+    const settings: Record<string, string> = {};
+    rows.forEach(row => {
+      settings[row.key] = row.value;
+    });
+    res.json(settings);
+  });
+
+  app.put("/api/settings", authenticate, (req: any, res) => {
+    const updates = req.body;
+    const stmt = db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
+    
+    const transaction = db.transaction((data) => {
+      for (const [key, value] of Object.entries(data)) {
+        stmt.run(key, value);
+      }
+    });
+
+    transaction(updates);
+    logActivity(req.user.id, req.user.full_name, 'Updated', 'Settings', null, 'Site settings updated');
     res.json({ success: true });
   });
 

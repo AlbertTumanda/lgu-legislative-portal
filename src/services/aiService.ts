@@ -1,7 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.GEMINI_API_KEY;
-
 export async function getAIChatResponse(message: string, context: string) {
   const apiKey = process.env.GEMINI_API_KEY;
   

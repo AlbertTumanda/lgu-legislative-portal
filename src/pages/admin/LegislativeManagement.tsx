@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { FileText, Calendar, Plus, Edit2, Trash2, Search, CheckCircle, Clock, AlertCircle, FileUp, X, File } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { FileText, Calendar, Plus, Edit2, Trash2, Search, FileUp, X, File } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
 
@@ -19,11 +19,7 @@ export default function LegislativeManagement() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
 
-  useEffect(() => {
-    fetchData();
-  }, [activeTab]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
@@ -39,7 +35,11 @@ export default function LegislativeManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, token]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleOpenModal = (item: any = null) => {
     if (item) {

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Mail, Trash2, CheckCircle, Clock, Search, Filter, User, MessageSquare } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Mail, Trash2, CheckCircle, Clock, Search, User, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { format } from 'date-fns';
 
@@ -11,11 +11,7 @@ export default function MessageManagement() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
 
-  useEffect(() => {
-    fetchMessages();
-  }, [token]);
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch('/api/admin/contact', {
@@ -28,7 +24,11 @@ export default function MessageManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {

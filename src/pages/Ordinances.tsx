@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Download, FileText } from 'lucide-react';
 
 export default function Ordinances() {
@@ -6,7 +6,7 @@ export default function Ordinances() {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('All');
 
-  useEffect(() => {
+  const fetchLegislations = useCallback(() => {
     let url = '/api/legislations';
     const params = new URLSearchParams();
     if (search) params.append('search', search);
@@ -18,6 +18,10 @@ export default function Ordinances() {
       .then(res => res.json())
       .then(data => setItems(data));
   }, [search, filterType]);
+
+  useEffect(() => {
+    fetchLegislations();
+  }, [fetchLegislations]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
