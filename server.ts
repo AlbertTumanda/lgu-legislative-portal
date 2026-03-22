@@ -6,10 +6,21 @@ import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
-import { GoogleGenAI } from "@google/genai";
-import "dotenv/config";
+
+import { fileURLToPath } from "url"; //albert
+
+const __filename = fileURLToPath(import.meta.url); //albert
+const __dirname = path.dirname(__filename); //albert
+
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-key-change-in-prod";
+
+//albert
+const distPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "dist"
+);
+//albert
 
 // Ensure uploads directory exists
 const uploadsDir = path.resolve("public/uploads");
@@ -17,7 +28,7 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// ... (Multer configuration remains the same) ...
+// Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadsDir);
@@ -59,7 +70,7 @@ async function startServer() {
   // Serve static files from public directory
   app.use("/uploads", express.static(uploadsDir));
 
-  // ... (Auth Middleware and logActivity remain the same) ...
+  // Auth Middleware
   const authenticate = (req: any, res: any, next: any) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -83,101 +94,6 @@ async function startServer() {
   };
 
   // --- API ROUTES ---
-
-  // AI Chat Endpoint
-  app.post("/api/chat", async (req, res) => {
-    const { message } = req.body;
-
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Valid message is required" });
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error("GEMINI_API_KEY is not set in environment variables.");
-      return res.json({ reply: "I'm having trouble connecting to my brain right now. Please try again later." });
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
-
-    try {
-      // PART 2 & 3: Database Connected AI & Ordinance Lookup
-      
-      // Try to extract ordinance/resolution numbers (e.g., 2024-001)
-      const numberMatch = message.match(/\d{4}-\d{3}/);
-      let legislations: any[] = [];
-
-      if (numberMatch) {
-        // Direct lookup by number
-        legislations = db.prepare(`
-          SELECT * FROM legislations 
-          WHERE number LIKE ?
-        `).all(`%${numberMatch[0]}%`);
-      }
-
-      if (legislations.length === 0) {
-        // Keyword search in title or description
-        const searchTerm = `%${message}%`;
-        legislations = db.prepare(`
-          SELECT * FROM legislations 
-          WHERE title LIKE ? 
-          OR description LIKE ?
-          LIMIT 3
-        `).all(searchTerm, searchTerm);
-      }
-
-      let context = "";
-      if (legislations.length > 0) {
-        context = "Relevant Legislative Records Found:\n" + 
-          legislations.map(l => 
-            `Type: ${l.legislation_type}\nNumber: ${l.number}\nTitle: ${l.title}\nAuthor: ${l.author}\nStatus: ${l.status}\nDate Approved: ${l.date_approved || 'N/A'}\nDescription: ${l.description}`
-          ).join("\n\n---\n\n");
-      }
-
-      // PART 3: AI Summarization Prompt & Citizen-Friendly Mode
-      const systemInstruction = `
-        You are the official legislative assistant of the Sangguniang Bayan of Batuan, Bohol. 
-        Your goal is to explain ordinances and resolutions clearly for citizens in simple, non-legal language.
-        
-        ${context ? `
-        I found the following legislation records in the database. Use this information to answer the user's question:
-        ${context}
-        
-        When explaining a specific ordinance or resolution, you MUST include:
-        • Ordinance/Resolution Number and Title
-        • Author
-        • Date Approved
-        • A citizen-friendly explanation structured as:
-          - Purpose: Why was this created?
-          - Key Provisions: What are the main rules or points?
-          - Who is affected: Who does this impact?
-          - Implementation: How is it being carried out?
-        ` : `
-        No specific legislative records were found in the database for this query. 
-        Answer the user's question normally as a helpful local government legislative assistant. 
-        If they are looking for a specific ordinance, suggest they provide the ordinance number or search keywords.
-        `}
-        
-        Always be professional, polite, and helpful. Avoid legal jargon.
-      `;
-
-      const result = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [{ role: "user", parts: [{ text: message }] }],
-        config: {
-          systemInstruction: systemInstruction,
-          temperature: 0.7,
-        },
-      });
-      
-      const reply = result.text;
-
-      res.json({ reply });
-    } catch (error) {
-      console.error("AI Chat Error:", error);
-      res.json({ reply: "I'm having trouble connecting to my brain right now. Please try again later." });
-    }
-  });
 
   // File Upload
   app.post("/api/upload", authenticate, upload.single("file"), (req: any, res) => {
@@ -588,7 +504,9 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     // Production: Serve Static Files
-    const distPath = path.resolve(__dirname, "dist");
+    const distPath = path.resolve(__dirname, "dist"); //albert
+
+
     if (fs.existsSync(distPath)) {
       app.use(express.static(distPath));
       app.get("*", (req, res) => {
